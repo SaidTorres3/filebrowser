@@ -1,27 +1,15 @@
 <template>
-  <div
-    class="image-ex-container"
-    ref="container"
-    @touchstart="touchStart"
-    @touchmove="touchMove"
-    @dblclick="zoomAuto"
-    @mousedown="mousedownStart"
-    @mousemove="mouseMove"
-    @mouseup="mouseUp"
-    @wheel="wheelMove"
-  >
-    <img
-      src=""
-      class="image-ex-img image-ex-img-center"
-      ref="imgex"
-      @load="onLoad"
-    />
+  <div class="docx-container">
+    <div class="docx-container__paper">
+      <div class="docx-container__paper__content">
+        {{ docxtxt }}
+      </div>
+    </div>
   </div>
 </template>
-<script>
-// import throttle from "lodash.throttle";
-// import UTIF from "utif";
 
+<script>
+import { docxToString } from "@/utils/docxToString";
 export default {
   props: {
     src: String,
@@ -38,33 +26,47 @@ export default {
       default: () => 0.25,
     },
   },
+  data: function () {
+    return {
+      docxtxt: "",
+    };
+  },
   mounted() {
-    console.log(this.src)
+    console.log(this.docxtxt);
+    this.loadDocument().then((res) => {
+      this.docxtxt = res;
+    });
+  },
+  methods: {
+    loadDocument: async function () {
+      // this.src is the URL to the file. Ex: '/api/files/downloads/Sample4.docx?key=49387441654681&inline=true'
+      const docxFile = await fetch(this.src);
+      const docxBlob = await docxFile.blob();
+      const result = await docxToString(docxBlob);
+      return result.toString();
+    },
   },
 };
 </script>
+
 <style>
-.image-ex-container {
-  margin: auto;
-  overflow: hidden;
-  position: relative;
+.docx-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
 }
 
-.image-ex-img {
-  position: absolute;
+.docx-container__paper {
+  background-color: white;
+  width: 8.5in;
+  min-height: 11in;
+  height: max-content;
 }
 
-.image-ex-img-center {
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  position: absolute;
-  transition: none;
-}
-
-.image-ex-img-ready {
-  left: 0;
-  top: 0;
-  transition: transform 0.1s ease;
+.docx-container__paper__content {
+  padding: 0.5in;
+  white-space: pre-wrap;
 }
 </style>
