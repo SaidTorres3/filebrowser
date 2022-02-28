@@ -56,6 +56,7 @@
     <template v-else>
       <div class="preview">
         <ExtendedImage v-if="req.type == 'image'" :src="raw"></ExtendedImage>
+        <Docx :src="raw" v-else-if="req.type == 'docx'"></Docx>
         <audio
           v-else-if="req.type == 'audio'"
           ref="player"
@@ -151,8 +152,9 @@ import throttle from "lodash.throttle";
 import HeaderBar from "@/components/header/HeaderBar";
 import Action from "@/components/header/Action";
 import ExtendedImage from "@/components/files/ExtendedImage";
+import Docx from '../../components/files/Docx.vue';
 
-const mediaTypes = ["image", "video", "audio", "blob"];
+const mediaTypes = ["image", "video", "audio", "blob", "docx"];
 
 export default {
   name: "preview",
@@ -160,6 +162,7 @@ export default {
     HeaderBar,
     Action,
     ExtendedImage,
+    Docx
   },
   data: function () {
     return {
@@ -202,6 +205,7 @@ export default {
       return `${baseURL}/api/raw${url.encodePath(this.req.path)}?k=${key}`;
     },
     raw() {
+      console.log(this.req);
       return `${this.previewUrl}&inline=true`;
     },
     showMore() {
